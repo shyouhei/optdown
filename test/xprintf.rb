@@ -22,14 +22,41 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-;
 
-module Optdown
-  VERSION = 1
+require 'securerandom'
+require_relative 'test_helper'
+require 'optdown'
 
-  require_relative 'optdown/html5entity'
-  require_relative 'optdown/deeply_frozen'
-  require_relative 'optdown/always_frozen'
-  require_relative 'optdown/expr'
-  require_relative 'optdown/xprintf'
+class TC_XPrintf < Test::Unit::TestCase
+  using Optdown::XPrintf
+
+  sub_test_case "#lprintf" do
+    class Double
+      include Test::Unit::Assertions
+
+      def initialize str
+        @str = " #{str}"
+      end
+
+      def debug str
+        assert_equal @str, str
+      end
+    end
+
+    setup do
+      @str     = SecureRandom.uuid
+      @subject = Double.new @str
+    end
+
+    test "#lprintf" do
+      lprintf @subject, :debug, " %s", @str
+    end
+  end
+
+  test "#rprintf" do
+    str = SecureRandom.uuid
+    assert_raise_message " #{str}" do
+      rprintf RuntimeError, " %s", str
+    end
+  end
 end
