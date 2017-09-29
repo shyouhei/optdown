@@ -22,12 +22,31 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-;
 
-module Optdown
-  VERSION = 1
+# By prepending  this module your class  gets frozen.  Instances of  your class
+# can no longer be modifiable.  You cannot  but create a new instance to modify
+# something.
+#
+# Due to ruby's language restriction this module has no public methods.
+module Optdown::AlwaysFrozen
+  private
 
-  require_relative 'optdown/html5entity'
-  require_relative 'optdown/deeply_frozen'
-  require_relative 'optdown/always_frozen'
+  def self.included *;
+    raise "#{self} must be prepended, not included"
+  end
+
+  private_class_method :included
+
+  # Following  two method  definitions  are lexically  identical.  However  you
+  # cannot merge them into one, because what `super` resolves to differs.
+
+  def initialize_copy *;
+    super
+    freeze
+  end
+
+  def initialize *;
+    super
+    freeze
+  end
 end

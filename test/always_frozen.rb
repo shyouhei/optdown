@@ -22,12 +22,33 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-;
 
-module Optdown
-  VERSION = 1
+require_relative 'test_helper'
+require 'optdown'
 
-  require_relative 'optdown/html5entity'
-  require_relative 'optdown/deeply_frozen'
-  require_relative 'optdown/always_frozen'
+class TestTarget
+  prepend ::Optdown::AlwaysFrozen
+end
+
+class TC_AlwaysFrozen < Test::Unit::TestCase
+  subject = TestTarget.new
+
+  data(
+    "#frozen?"      => subject,
+    "#dup"          => subject.dup,
+    "#clone"        => subject.clone,
+    "freeze: false" => subject.clone(freeze: false)
+  )
+
+  test "#frozen?" do |obj|
+    assert_equal(true, obj.frozen?)
+  end
+
+  test ".included" do
+    assert_raise_message(/must be prepended/) do
+      Class.new do
+        include ::Optdown::AlwaysFrozen
+      end
+    end
+  end
 end
