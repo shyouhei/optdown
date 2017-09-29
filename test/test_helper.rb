@@ -46,3 +46,31 @@ class Test::Unit::TestCase
     end
   }
 end
+
+# Optdown::EXPR has literally hundreds of  named captures.  By matching against
+# it a MatchData will contain all of them. This is almost impossible to inspect
+# at one sight.  However the captures tends to be nil; which means most of them
+# do not make sense  at once.  We can cut nil captures  from the inspect output
+# for better readability.
+class MatchData
+  prepend Module.new {
+    def inspect
+      str = super
+      names.each do |nam|
+        str.gsub! %r/\s+#{Regexp.quote(nam)}:nil\b/, ''
+      end
+      return str
+    end
+  }
+end
+
+# So do Regexps.
+class Regexp
+  prepend Module.new {
+    def inspect
+      str = super
+      str.gsub! %r/\n\(\?\<SP\>.+\)\{0\}\n/m, '...'
+      return str
+    end
+  }
+end

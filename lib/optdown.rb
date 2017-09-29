@@ -30,4 +30,5 @@ module Optdown
   require_relative 'optdown/html5entity'
   require_relative 'optdown/deeply_frozen'
   require_relative 'optdown/always_frozen'
+  require_relative 'optdown/expr'
 end
