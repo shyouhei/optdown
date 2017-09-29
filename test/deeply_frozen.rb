@@ -22,11 +22,32 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-;
 
-module Optdown
-  VERSION = 1
+require_relative 'test_helper'
+require 'optdown'
 
-  require_relative 'optdown/html5entity'
-  require_relative 'optdown/deeply_frozen'
+class TC_DeeplyFrozen < Test::Unit::TestCase
+  using Optdown::DeeplyFrozen
+
+  data(
+    'nil' => nil,
+    '0' => 0,
+    '1' => 1,
+    '""' => "",
+    'String.new' => String.new, 
+    '[]' => [],
+    '{}' => {},
+    'Object.new' => Object.new,
+    '[{}]' => [{}]
+  )
+
+  test '#deeply_frozen_copy_of' do |subject|
+    target = deeply_frozen_copy_of subject
+    assert_true target.frozen?
+  end
+
+  test '#deeply_frozen_copy' do |subject|
+    target = subject.deeply_frozen_copy
+    assert_true target.frozen?
+  end
 end

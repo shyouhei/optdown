@@ -1,6 +1,6 @@
 #! /your/favourite/path/to/ruby
 # -*- mode: ruby; coding: utf-8; indent-tabs-mode: nil; ruby-indent-level: 2 -*-
-# -*- frozen_string_literal: true -*-
+# -*- frozen_string_literal: false -*-
 # -*- warn_indent: true -*-
 
 # Copyright (c) 2017 Urabe, Shyouhei
@@ -22,11 +22,34 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-;
 
-module Optdown
-  VERSION = 1
+# This module is a Refinements.  It introduces Object#deeply_frozen_copy.
+module Optdown::DeeplyFrozen
+  refine Object do
 
-  require_relative 'optdown/html5entity'
-  require_relative 'optdown/deeply_frozen'
+    private
+
+    # Recursively freeze everything inside, no matter what the given object is.
+    #
+    # @param  x [Object] anything.
+    # @return   [Object] deeply frozen copy of x.
+    # @note              @shyouhei recommends  you to read  the implementation.
+    #                    This is fascinating.
+    def deeply_frozen_copy_of x
+      str = Marshal.dump x
+      ary = Array.new
+      ret = Marshal.load str, ->(y) { ary.push y; y }
+      ary.each(&:freeze)
+      return ret
+    end
+
+    public
+
+    # Recursively freeze everything inside, no matter what it is.
+    #
+    # @return   [Object] deeply frozen copy of self.
+    def deeply_frozen_copy
+      return deeply_frozen_copy_of self
+    end
+  end
 end
