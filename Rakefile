@@ -50,3 +50,22 @@ task :pry do
 end
 task c: :pry
 task console: :pry
+
+file 'lib/optdown/html5entity.rb' => 'lib/optdown/html5entity.erb' do |t|
+  require 'open-uri'
+  require 'erb'
+  require 'json'
+  URI('https://www.w3.org/TR/html5/entities.json').open do |fp|
+    # For this use of create_additions option:
+    # @see https://www.ruby-lang.org/en/news/2013/02/22/json-dos-cve-2013-0269/
+    entities = JSON.parse fp.read, create_additions: false
+    path = t.prerequisites.first
+    src = File.read path
+    erb = ERB.new src, nil, '%-'
+    erb.filename = path
+    b = TOPLEVEL_BINDING.dup
+    b.local_variable_set 'entities', entities
+    dst = erb.result b
+    File.write t.name, dst
+  end
+end

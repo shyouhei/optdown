@@ -26,4 +26,6 @@
 
 module Optdown
   VERSION = 1
+
+  require_relative 'optdown/html5entity'
 end
