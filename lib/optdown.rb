@@ -32,4 +32,5 @@ module Optdown
   require_relative 'optdown/always_frozen'
   require_relative 'optdown/expr'
   require_relative 'optdown/xprintf'
+  require_relative 'optdown/matcher'
 end
