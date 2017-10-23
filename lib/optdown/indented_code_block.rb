@@ -22,41 +22,45 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-;
 
-module Optdown
-  VERSION = 1
+require_relative 'expr'
+require_relative 'matcher'
 
-  require_relative 'optdown/html5entity'
-  require_relative 'optdown/deeply_frozen'
-  require_relative 'optdown/always_frozen'
-  require_relative 'optdown/expr'
-  require_relative 'optdown/xprintf'
-  require_relative 'optdown/matcher'
-  require_relative 'optdown/token'
-  require_relative 'optdown/flanker'
-  require_relative 'optdown/emphasis'
-  require_relative 'optdown/link'
-  require_relative 'optdown/strikethrough'
-  require_relative 'optdown/autolink'
-  require_relative 'optdown/raw_html'
-  require_relative 'optdown/code_span'
-  require_relative 'optdown/entity'
-  require_relative 'optdown/escape'
-  require_relative 'optdown/newline'
-  require_relative 'optdown/inline'
-  require_relative 'optdown/paragraph'
-  require_relative 'optdown/table'
-  require_relative 'optdown/setext_heading'
-  require_relative 'optdown/atx_heading'
-  require_relative 'optdown/indented_code_block'
-  require_relative 'optdown/fenced_code_block'
-  require_relative 'optdown/blockhtml'
-  require_relative 'optdown/list_item'
-  require_relative 'optdown/list'
-  require_relative 'optdown/blockquote'
-  require_relative 'optdown/link_def'
-  require_relative 'optdown/thematic_break'
-  require_relative 'optdown/blocklevel'
-  require_relative 'optdown/parser'
+# @see http://spec.commonmark.org/0.28/#indented-code-block
+class Optdown::IndentedCodeBlock
+  using Optdown::Matcher::Refinements
+
+  attr_reader :pre # @return [Matcher] verbatim contents.
+
+  # (see Optdown::Blocklevel#initialize)
+  def initialize str, ctx
+    pre = [ str.gets ]
+
+    until str.eos? do
+      case str
+      when /#{Optdown::EXPR}\G\g<pre:indented>/o then
+        pre << str.gets
+      when /#{Optdown::EXPR}\G(?=\g<LINE:blank>+\g<pre:indented>)/o then
+        str.match %r/#{Optdown::EXPR}\G\g<indent>/o # cut space
+        pre << str.gets
+      else
+        break
+      end
+    end
+
+    # > Blank  lines preceding  or following  an  indented code  block are  not
+    # > included in it
+    # @see http://spec.commonmark.org/0.28/#indented-code-block
+    @pre = Optdown::Matcher.join pre \
+      .reverse                       \
+      .drop_while(&:blank?)          \
+      .reverse                       \
+      .drop_while(&:blank?)
+
+  end
+
+  # @return [nil] makes sense for fenced one, not here.
+  def info
+    return nil
+  end
 end

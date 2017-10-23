@@ -22,41 +22,34 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-;
 
-module Optdown
-  VERSION = 1
+require_relative 'expr'
 
-  require_relative 'optdown/html5entity'
-  require_relative 'optdown/deeply_frozen'
-  require_relative 'optdown/always_frozen'
-  require_relative 'optdown/expr'
-  require_relative 'optdown/xprintf'
-  require_relative 'optdown/matcher'
-  require_relative 'optdown/token'
-  require_relative 'optdown/flanker'
-  require_relative 'optdown/emphasis'
-  require_relative 'optdown/link'
-  require_relative 'optdown/strikethrough'
-  require_relative 'optdown/autolink'
-  require_relative 'optdown/raw_html'
-  require_relative 'optdown/code_span'
-  require_relative 'optdown/entity'
-  require_relative 'optdown/escape'
-  require_relative 'optdown/newline'
-  require_relative 'optdown/inline'
-  require_relative 'optdown/paragraph'
-  require_relative 'optdown/table'
-  require_relative 'optdown/setext_heading'
-  require_relative 'optdown/atx_heading'
-  require_relative 'optdown/indented_code_block'
-  require_relative 'optdown/fenced_code_block'
-  require_relative 'optdown/blockhtml'
-  require_relative 'optdown/list_item'
-  require_relative 'optdown/list'
-  require_relative 'optdown/blockquote'
-  require_relative 'optdown/link_def'
-  require_relative 'optdown/thematic_break'
-  require_relative 'optdown/blocklevel'
-  require_relative 'optdown/parser'
+# @see http://spec.commonmark.org/0.28/#link-reference-definitions
+class Optdown::LinkDef
+  attr_reader :dest  # @return [String] URL
+  attr_reader :title # @return [String] title
+  attr_reader :label # @return [String] label
+
+  # @see http://spec.commonmark.org/0.28/#matches
+  # @param str [String] label candidate.
+  # @return    [String] normalized label string.
+  def self.labelize str
+    return str          \
+      . to_s            \
+      . downcase(:fold) \
+      . gsub %r/#{Optdown::EXPR}\g<WS+>/o, ' '
+  end
+
+  # (see Optdown::Blocklevel#initialize)
+  def initialize str, ctx
+    @label = self.class.labelize str['link:label']
+    dest   = str['link:dest']
+    title  = str['link:title:2j'] ||
+             str['link:title:1j'] ||
+             str['link:title:0j']
+    @dest  = dest && Optdown::LinkTitle.new(dest.to_s).plain
+    @title = title && Optdown::LinkTitle.new(title.to_s)
+    ctx.define_link self
+  end
 end

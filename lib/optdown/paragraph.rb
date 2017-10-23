@@ -22,41 +22,51 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-;
 
-module Optdown
-  VERSION = 1
+require_relative 'expr'
+require_relative 'matcher'
+require_relative 'inline'
+require_relative 'deeply_frozen'
 
-  require_relative 'optdown/html5entity'
-  require_relative 'optdown/deeply_frozen'
-  require_relative 'optdown/always_frozen'
-  require_relative 'optdown/expr'
-  require_relative 'optdown/xprintf'
-  require_relative 'optdown/matcher'
-  require_relative 'optdown/token'
-  require_relative 'optdown/flanker'
-  require_relative 'optdown/emphasis'
-  require_relative 'optdown/link'
-  require_relative 'optdown/strikethrough'
-  require_relative 'optdown/autolink'
-  require_relative 'optdown/raw_html'
-  require_relative 'optdown/code_span'
-  require_relative 'optdown/entity'
-  require_relative 'optdown/escape'
-  require_relative 'optdown/newline'
-  require_relative 'optdown/inline'
-  require_relative 'optdown/paragraph'
-  require_relative 'optdown/table'
-  require_relative 'optdown/setext_heading'
-  require_relative 'optdown/atx_heading'
-  require_relative 'optdown/indented_code_block'
-  require_relative 'optdown/fenced_code_block'
-  require_relative 'optdown/blockhtml'
-  require_relative 'optdown/list_item'
-  require_relative 'optdown/list'
-  require_relative 'optdown/blockquote'
-  require_relative 'optdown/link_def'
-  require_relative 'optdown/thematic_break'
-  require_relative 'optdown/blocklevel'
-  require_relative 'optdown/parser'
+# @see http://spec.commonmark.org/0.28/#paragraphs
+class Optdown::Paragraph
+  using Optdown::DeeplyFrozen
+  using Optdown::Matcher::Refinements
+
+  # Paragraph continuations shall construct paragraphs, not other block levels.
+  # For instance  "> foo\n ====" shall  not be  an h2  inside of  a blockquote.
+  # This constant sneaks into parsed DOM trees to prevent such misconceptions.
+  PAD = deeply_frozen_copy_of Optdown::Matcher.new("\t\t")
+
+  # (see Optdown::Blocklevel#initialize)
+  def initialize str, ctx
+    a = [ str.gets ] # at least one line shall be there.
+    a << str.gets until str.match? %r/#{Optdown::EXPR}\G\g<p:cutter>/o
+    b = trim a
+    @children = Optdown::Inline.from_lines b, ctx
+  end
+
+  private
+
+  # > The paragraph’s  raw content  is formed by  concatenating the  lines and
+  # > removing initial and final whitespace.
+  #
+  # So we have to trim the input here.
+  #
+  # @see http://spec.commonmark.org/0.28/#paragraphs
+  def trim a
+    a.map! do |i|
+      i.match %r/#{Optdown::EXPR}\A\g<WS+>/o
+      i.read
+    end
+    a[-1], = a[-1].advance %r/#{Optdown::EXPR}\g<WS+>\z/o
+    return a
+  end
+
+  public
+
+  # @todo description TBW.
+  def children
+    @children&.children
+  end
 end

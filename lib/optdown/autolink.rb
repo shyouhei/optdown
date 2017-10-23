@@ -22,41 +22,23 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-;
 
-module Optdown
-  VERSION = 1
 
-  require_relative 'optdown/html5entity'
-  require_relative 'optdown/deeply_frozen'
-  require_relative 'optdown/always_frozen'
-  require_relative 'optdown/expr'
-  require_relative 'optdown/xprintf'
-  require_relative 'optdown/matcher'
-  require_relative 'optdown/token'
-  require_relative 'optdown/flanker'
-  require_relative 'optdown/emphasis'
-  require_relative 'optdown/link'
-  require_relative 'optdown/strikethrough'
-  require_relative 'optdown/autolink'
-  require_relative 'optdown/raw_html'
-  require_relative 'optdown/code_span'
-  require_relative 'optdown/entity'
-  require_relative 'optdown/escape'
-  require_relative 'optdown/newline'
-  require_relative 'optdown/inline'
-  require_relative 'optdown/paragraph'
-  require_relative 'optdown/table'
-  require_relative 'optdown/setext_heading'
-  require_relative 'optdown/atx_heading'
-  require_relative 'optdown/indented_code_block'
-  require_relative 'optdown/fenced_code_block'
-  require_relative 'optdown/blockhtml'
-  require_relative 'optdown/list_item'
-  require_relative 'optdown/list'
-  require_relative 'optdown/blockquote'
-  require_relative 'optdown/link_def'
-  require_relative 'optdown/thematic_break'
-  require_relative 'optdown/blocklevel'
-  require_relative 'optdown/parser'
+# http://spec.commonmark.org/0.28/#autolinks
+class Optdown::Autolink
+  attr_reader :href    # @return [String] the link.
+  attr_reader :display # @return [String] the content.
+
+  # @param tok [Token] terminal token.
+  def initialize tok
+    md = tok.yylval
+    case
+    when md['auto:URI']      then @href = md['auto:URI']
+    when md['auto:mail']     then @href = 'mailto:' + md['auto:mail']
+    when md['auto:GH:www']   then @href = 'http://' + tok.to_s
+    when md['auto:GH:url']   then @href = tok.to_s
+    when md['auto:GH:email'] then @href = 'mailto:' + tok.to_s
+    end
+    @display = md['auto:URI'] || md['auto:mail'] || tok.to_s
+  end
 end

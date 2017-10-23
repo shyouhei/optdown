@@ -22,41 +22,46 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-;
 
-module Optdown
-  VERSION = 1
+require_relative 'expr'
+require_relative 'matcher'
+require_relative 'list_item'
 
-  require_relative 'optdown/html5entity'
-  require_relative 'optdown/deeply_frozen'
-  require_relative 'optdown/always_frozen'
-  require_relative 'optdown/expr'
-  require_relative 'optdown/xprintf'
-  require_relative 'optdown/matcher'
-  require_relative 'optdown/token'
-  require_relative 'optdown/flanker'
-  require_relative 'optdown/emphasis'
-  require_relative 'optdown/link'
-  require_relative 'optdown/strikethrough'
-  require_relative 'optdown/autolink'
-  require_relative 'optdown/raw_html'
-  require_relative 'optdown/code_span'
-  require_relative 'optdown/entity'
-  require_relative 'optdown/escape'
-  require_relative 'optdown/newline'
-  require_relative 'optdown/inline'
-  require_relative 'optdown/paragraph'
-  require_relative 'optdown/table'
-  require_relative 'optdown/setext_heading'
-  require_relative 'optdown/atx_heading'
-  require_relative 'optdown/indented_code_block'
-  require_relative 'optdown/fenced_code_block'
-  require_relative 'optdown/blockhtml'
-  require_relative 'optdown/list_item'
-  require_relative 'optdown/list'
-  require_relative 'optdown/blockquote'
-  require_relative 'optdown/link_def'
-  require_relative 'optdown/thematic_break'
-  require_relative 'optdown/blocklevel'
-  require_relative 'optdown/parser'
+# @see http://spec.commonmark.org/0.28/#lists
+class Optdown::List
+  using Optdown::Matcher::Refinements
+
+  # (see Optdown::Blocklevel#initialize)
+  def initialize str, ctx
+    first       = Optdown::ListItem.new str, ctx
+    continue    = first.same_type_expr
+    @children   = [ first ]
+    @blank_seen = false
+    until str.eos? do
+      break unless str.match? continue
+      while str.match? %r/#{Optdown::EXPR}\G\g<LINE:blank>/o do
+        @blank_seen = true
+        str.gets
+      end
+      item = Optdown::ListItem.new str, ctx
+      @children << item
+    end
+  end
+
+  # @see http://spec.commonmark.org/0.28/#loose
+  # @return [true]  it is.
+  # @return [false] it isn't.
+  def tight?
+    return (! @blank_seen) && @children.all?(&:tight?)
+  end
+
+  # @return [:ordered, :bullet, :task] type of the list.
+  def type
+    @children.first.type
+  end
+
+  # @return [String] start number (makes sense for ordered list)
+  def start
+    @children.first.order.sub %r/\A0+(?=\d)/, ''
+  end
 end

@@ -22,41 +22,38 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-;
 
-module Optdown
-  VERSION = 1
+require_relative 'html5entity'
 
-  require_relative 'optdown/html5entity'
-  require_relative 'optdown/deeply_frozen'
-  require_relative 'optdown/always_frozen'
-  require_relative 'optdown/expr'
-  require_relative 'optdown/xprintf'
-  require_relative 'optdown/matcher'
-  require_relative 'optdown/token'
-  require_relative 'optdown/flanker'
-  require_relative 'optdown/emphasis'
-  require_relative 'optdown/link'
-  require_relative 'optdown/strikethrough'
-  require_relative 'optdown/autolink'
-  require_relative 'optdown/raw_html'
-  require_relative 'optdown/code_span'
-  require_relative 'optdown/entity'
-  require_relative 'optdown/escape'
-  require_relative 'optdown/newline'
-  require_relative 'optdown/inline'
-  require_relative 'optdown/paragraph'
-  require_relative 'optdown/table'
-  require_relative 'optdown/setext_heading'
-  require_relative 'optdown/atx_heading'
-  require_relative 'optdown/indented_code_block'
-  require_relative 'optdown/fenced_code_block'
-  require_relative 'optdown/blockhtml'
-  require_relative 'optdown/list_item'
-  require_relative 'optdown/list'
-  require_relative 'optdown/blockquote'
-  require_relative 'optdown/link_def'
-  require_relative 'optdown/thematic_break'
-  require_relative 'optdown/blocklevel'
-  require_relative 'optdown/parser'
+# @see http://spec.commonmark.org/0.28/#entity-references
+class Optdown::Entity
+  attr_reader :token  # @return [String] original representation.
+  attr_reader :entity # @return [String] escaped entity.
+
+  # @param tok [Token] terminal token.
+  def initialize tok
+    md      = tok.yylval
+    @token  = md['entity']
+    @entity = case
+              when e = md['entity:hex']   then encode e.to_i(16)
+              when e = md['entity:dec']   then encode e.to_i(10)
+              when e = md['entity:named'] then
+                f = Optdown::HTML5ENTITY.fetch e
+                f['characters']
+            # else
+            #   what to do...?
+              end
+  end
+
+  private
+
+  # > Invalid Unicode code points will be replaced by the REPLACEMENT CHARACTER
+  # > (U+FFFD).   For security  reasons, the  code  point U+0000  will also  be
+  # > replaced by U+FFFD.
+  def encode c
+    return "\uFFFD" if c == 0
+    return c.chr Encoding::UTF_8
+  rescue RangeError
+    return "\uFFFD"
+  end
 end
