@@ -44,12 +44,19 @@ class Optdown::LinkDef
   # (see Optdown::Blocklevel#initialize)
   def initialize str, ctx
     @label = self.class.labelize str['link:label']
-    dest   = str['link:dest']
+    dest   = str['link:dest:a'] ||
+             str['link:dest:b']
     title  = str['link:title:2j'] ||
              str['link:title:1j'] ||
              str['link:title:0j']
     @dest  = dest && Optdown::LinkTitle.new(dest.to_s).plain
     @title = title && Optdown::LinkTitle.new(title.to_s)
     ctx.define_link self
+  end
+
+  # (see Optdown::Blocklevel#accept)
+  def accept visitor, tightp: false
+    t = visitor.visit @title if @title
+    return visitor.visit_link_definition self, t
   end
 end

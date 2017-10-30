@@ -36,4 +36,9 @@ class Optdown::Escape
       .map {|_, i| i } \
       .join('')
   end
+
+  # (see Optdown::Inline#accept)
+  def accept visitor
+    return visitor.visit_escape self
+  end
 end

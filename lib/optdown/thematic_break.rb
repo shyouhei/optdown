@@ -32,4 +32,9 @@ class Optdown::ThematicBreak
   def initialize str, ctx
     @entity = str['hr']
   end
+
+  # (see Optdown::Blocklevel#accept)
+  def accept visitor, tightp: false
+    return visitor.visit_thematic_break self
+  end
 end

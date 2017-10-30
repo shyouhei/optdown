@@ -63,4 +63,9 @@ class Optdown::IndentedCodeBlock
   def info
     return nil
   end
+
+  # (see Optdown::Blocklevel#accept)
+  def accept visitor, tightp: false
+    return visitor.visit_code_block self
+  end
 end

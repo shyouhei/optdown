@@ -37,4 +37,10 @@ class Optdown::ATXHeading
     # > spaces before being parsed as inline content.
     @children = Optdown::Inline.from_stripped str['atx:body'], ctx
   end
+
+  # (see Optdown::Blocklevel#accept)
+  def accept visitor, tightp: false
+    inner = visitor.visit @children
+    return visitor.visit_heading self, inner
+  end
 end

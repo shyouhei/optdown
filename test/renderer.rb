@@ -23,38 +23,45 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+require_relative 'test_helper'
+require 'optdown'
 
-# @see http://spec.commonmark.org/0.28/#code-spans
-class Optdown::CodeSpan
-  attr_reader :level  # @return [Integer] number of backticks.
-  attr_reader :entity # @return [String]  the content.
+class TC_Renderer < Test::Unit::TestCase
+  @@subject = Optdown::Renderer.new
+  @@parser  = Optdown::Parser.new
+  data(
+    'empty'   => '',
+    'p cdata' => 'foo',
+    'p br'    => "foo\\\nbar",
+    'p &'     => 'foo &amp; bar',
+    'p \\'    => 'foo \\&amp; bar',
+    'p `'     => '`foo`',
+    'p <'     => 'foo <bar>', # "foo" is to avoid blockhtml
+    'p url'   => 'foo <http://www.example.com>',
+    'p img'   => '![foo](http://www.example.com)',
+    'p link'  => '[foo](http://www.example.com)',
+    'p *'     => '*foo**',
+    'p _'     => '_foo__',
+    'p ~'     => '~foo~~',
+    'p *_*'   => '*_*foo*_*',
 
-  # @param tok [Token] terminal token.
-  def initialize tok
-    @level  = tok.yylval['code:start'].length
-    @entity = squash tok.yylval['code:body']
-  end
+    '--'  => '- - - -',
+    '[]:' => '[foo]: bar',
+    '>'   => '> foo',
+    '-'   => '- foo',
+    '*'   => '* foo',
+    '<'   => '<html>foo</html>',
+    '```' => "```foo\nbar\n```",
+    "\t"  => '    foo',
+    '#'   => '# foo',
+    '=='  => "foo\n===",
+    '|'   => "|foo|bar|\n|---|---|\n|foo|bar|\n",
+    'p'   => 'foo'
+  )
 
-  private
-
-  # >  The  contents of  the  code  span are  the  characters  between the  two
-  # >  backtick  strings, with  leading and  trailing spaces  and line  endings
-  # >  removed, and whitespace collapsed to single spaces.
-  #
-  # @see http://spec.commonmark.org/0.28/#code-span
-  def squash str
-    ret = str.to_s.dup
-    ret.gsub! %r/#{Optdown::EXPR}\A\g<WS*>/o, ''
-    ret.gsub! %r/#{Optdown::EXPR}\g<WS*>\z/o, ''
-    ret.gsub! %r/#{Optdown::EXPR}\g<EOL>\z/o, ''
-    ret.gsub! %r/#{Optdown::EXPR}\g<WS+>/o,   ' '
-    return ret
-  end
-
-  public
-
-  # (see Optdown::Inline#accept)
-  def accept visitor
-    return visitor.visit_code_span self
+  test '#render' do |src|
+    dom    = @@parser.parse src
+    actual = @@subject.render dom
+    assert_equal '', actual
   end
 end

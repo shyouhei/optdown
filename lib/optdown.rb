@@ -59,4 +59,5 @@ module Optdown
   require_relative 'optdown/thematic_break'
   require_relative 'optdown/blocklevel'
   require_relative 'optdown/parser'
+  require_relative 'optdown/renderer'
 end

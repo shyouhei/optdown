@@ -52,4 +52,10 @@ class Optdown::Blockquote
     end
     @children = Optdown::Blocklevel.from_lines lines, ctx
   end
+
+  # (see Optdown::Blocklevel#accept)
+  def accept visitor, tightp: false
+    inner = visitor.visit @children
+    return visitor.visit_blockquote self, inner
+  end
 end

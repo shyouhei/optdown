@@ -41,4 +41,9 @@ class Optdown::Autolink
     end
     @display = md['auto:URI'] || md['auto:mail'] || tok.to_s
   end
+
+  # (see Optdown::Inline#accept)
+  def accept visitor
+    return visitor.visit_auto_link self
+  end
 end

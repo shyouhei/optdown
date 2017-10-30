@@ -56,4 +56,11 @@ class Optdown::Entity
   rescue RangeError
     return "\uFFFD"
   end
+
+  public
+
+  # (see Optdown::Inline#accept)
+  def accept visitor
+    return visitor.visit_entity self
+  end
 end

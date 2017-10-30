@@ -89,4 +89,14 @@ class Optdown::Blocklevel
   def tight?
     return ! @blank_seen
   end
+
+  # Traverse the tree
+  #
+  # @param visitor [Renderer]   rendering visitor.
+  # @param tightp  [true,false] tightness.
+  # @return        [Object]     visitor visiting result.
+  def accept visitor, tightp: false
+    inner = @children.map {|i| visitor.visit i, tightp: tightp }
+    return visitor.visit_blocklevel self, inner
+  end
 end

@@ -63,4 +63,9 @@ class Optdown::BlockHTML
     end
     @html = Optdown::Matcher.join list
   end
+
+  # (see Optdown::Blocklevel#accept)
+  def accept visitor, tightp: false
+    return visitor.visit_blockhtml self
+  end
 end

@@ -74,4 +74,10 @@ class Optdown::SetextHeading
       @level = 2
     end
   end
+
+  # (see Optdown::Blocklevel#accept)
+  def accept visitor, tightp: false
+    inner = visitor.visit @children, tightp: true # always tight here.
+    return visitor.visit_heading self, inner
+  end
 end

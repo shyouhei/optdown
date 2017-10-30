@@ -35,4 +35,9 @@ class Optdown::Newline
     when md['br:soft'] then @type = :soft
     end
   end
+
+  # (see Optdown::Inline#accept)
+  def accept visitor
+    return visitor.visit_newline self
+  end
 end

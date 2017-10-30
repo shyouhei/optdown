@@ -49,4 +49,20 @@ class Optdown::LinkTitle
       end
     end
   end
+
+  # custom renderer does not make sense for link destination, which is a URL.
+  def plain
+    return @children.map {|t|
+      case t
+      when Optdown::Token  then next t.yytext
+      when Optdown::Escape then next t.entity
+      when Optdown::Entity then next t.entity
+      end
+    }.join
+  end
+
+  # (see Optdown::Inline#accept)
+  def accept visitor
+    return visitor.visit_link_title self, @children.map{|i| visitor.visit i }
+  end
 end

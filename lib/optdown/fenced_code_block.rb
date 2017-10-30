@@ -51,4 +51,9 @@ class Optdown::FencedCodeBlock
     @info = nil if @info.empty?
     @pre  = Optdown::Matcher.join pre
   end
+
+  # (see Optdown::Blocklevel#accept)
+  def accept visitor, tightp: false
+    return visitor.visit_code_block self
+  end
 end

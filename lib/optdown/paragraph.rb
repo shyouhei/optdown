@@ -69,4 +69,10 @@ class Optdown::Paragraph
   def children
     @children&.children
   end
+
+  # (see Optdown::Blocklevel#accept)
+  def accept visitor, tightp: false
+    inner = visitor.visit @children
+    return visitor.visit_paragraph self, tightp, inner
+  end
 end

@@ -122,7 +122,7 @@ class Optdown::ListItem
   # (see Optdown::Blocklevel#initialize)
   def initialize str, ctx
     @blank_seen = false
-    @document   = nil
+    @children   = nil
     md          = str.last_match
     md          = str.match %r/#{re}\G(?<li2>\g<SP>*\g<li>)/o unless md['li']
     width       = calc_width md
@@ -152,5 +152,11 @@ class Optdown::ListItem
   # @return [true, false] if the task is checked (makes sense for task item).
   def checked?
     (defined? @checked) and @checked
+  end
+
+  # (see Optdown::Blocklevel#accept)
+  def accept visitor, tightp: false
+    inner = visitor.visit @children, tightp: tightp
+    return visitor.visit_list_item self, inner
   end
 end

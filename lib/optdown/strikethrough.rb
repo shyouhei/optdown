@@ -48,6 +48,12 @@ class Optdown::Strikethrough < Optdown::Flanker
     tokens.compact!    
   end
 
+  # (see Optdown::Inline#accept)
+  def accept visitor
+    elems = @children.map {|i| visitor.visit i }
+    return visitor.visit_strikethrough self, elems
+  end
+
   def initialize open, body, close
     @children = body
   end

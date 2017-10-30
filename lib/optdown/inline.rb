@@ -130,4 +130,12 @@ class Optdown::Inline
     @parser   = ctx
     @parser.define_inline self
   end
+
+  # Traverse the tree
+  #
+  # @param visitor [Renderer]   rendering visitor.
+  # @return        [Object]     visitor visiting result.
+  def accept visitor
+    return visitor.visit_inline self, @children.map {|i| visitor.visit i }
+  end
 end

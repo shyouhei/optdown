@@ -134,6 +134,13 @@ module Optdown::Link
   class Img < Optdown::Flanker
     include Optdown::Link
     extend  Optdown::Link
+
+    # (see Optdown::Inline#accept)
+    def accept visitor
+      label = visitor.visit @attr[:label] if @attr[:label]
+      title = visitor.visit @attr[:title] if @attr[:title]
+      return visitor.visit_image self, label, title
+    end
   end
 
   # @see http://spec.commonmark.org/0.28/#links
@@ -166,6 +173,13 @@ module Optdown::Link
           return false
         end
       end
+    end
+
+    # (see Optdown::Inline#accept)
+    def accept visitor
+      label = visitor.visit @attr[:label] if @attr[:label]
+      title = visitor.visit @attr[:title] if @attr[:title]
+      return visitor.visit_link self, label, title
     end
   end
 end

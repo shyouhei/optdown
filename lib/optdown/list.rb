@@ -64,4 +64,10 @@ class Optdown::List
   def start
     @children.first.order.sub %r/\A0+(?=\d)/, ''
   end
+
+  # (see Optdown::Blocklevel#accept)
+  def accept visitor, tightp: false
+    li = @children.map {|i| visitor.visit i, tightp: self.tight? }
+    return visitor.visit_list self, li
+  end
 end

@@ -56,6 +56,11 @@ class Optdown::Token
     sprintf '%p%p', yytext, yylex
   end
 
+  # (see Optdown::Inline#accept)
+  def accept visitor
+    return visitor.visit_token self
+  end
+
   private
 
   def symbolize

@@ -56,6 +56,11 @@ module Optdown::Emphasis
 
     attr_reader :level # @return [Integer] nesting.
 
+    # (see Optdown::Inline#accept)
+    def accept visitor
+      return visitor.visit_emphasis self, @children.map {|i| visitor.visit i }
+    end
+
     def initialize open, body, close
       @level    = open.to_s.length
       @children = body
@@ -104,6 +109,11 @@ module Optdown::Emphasis
     end
 
     attr_reader :level # @return [Integer] nesting.
+
+    # (see Optdown::Inline#accept)
+    def accept visitor
+      return visitor.visit_emphasis self, @children.map {|i| visitor.visit i }
+    end
 
     def initialize open, body, close
       @level    = open.to_s.length

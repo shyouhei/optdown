@@ -105,4 +105,11 @@ class Optdown::Table
   def alignments
     return @th.map{|a| a[1] }
   end
+
+  # (see Optdown::Blocklevel#accept)
+  def accept visitor, tightp: false
+    thead = @th.map {|i| visitor.visit i[0] }
+    tbody = @td.map {|tr| tr.map {|td| visitor.visit td } }
+    return visitor.visit_table self, thead, tbody
+  end
 end

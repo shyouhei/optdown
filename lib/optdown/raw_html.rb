@@ -31,4 +31,9 @@ class Optdown::RawHTML
   def initialize tok
     @entity = tok.yylval['tag']
   end
+
+  # (see Optdown::Inline#accept)
+  def accept visitor
+    return visitor.visit_raw_html self
+  end
 end
