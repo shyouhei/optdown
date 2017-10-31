@@ -1,3 +1,6 @@
 [submodule "submodules/progit"]
 	path = submodules/progit
 	url = git@github.com:progit/progit.git
+[submodule "submodules/CommonMark"]
+	path = submodules/CommonMark
+	url = git@github.com:commonmark/CommonMark.git
