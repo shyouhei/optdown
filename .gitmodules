@@ -1,0 +1,3 @@
+[submodule "submodules/progit"]
+	path = submodules/progit
+	url = git@github.com:progit/progit.git

@@ -25,6 +25,7 @@ AllCops:
   DisabledByDefault: false
   DisplayCopNames: true
   Exclude:
+    - "submodules/**/*"
     - "vendor/**/*"
     - 'test/**/*'
     - '*.gemspec'
