@@ -69,3 +69,17 @@ file 'lib/optdown/html5entity.rb' => 'lib/optdown/html5entity.erb' do |t|
     File.write t.name, dst
   end
 end
+
+task :submodule do
+  sh 'git submodule update --init --recursive'
+end
+
+file 'test/spec.json' => 'submodules/CommonMark/spec.txt' do |f|
+  sh 'make -C submodules/CommonMark spec.json'
+  rm_r 'submodules/CommonMark/test/__pycache__'
+  mv 'submodules/CommonMark/spec.json', f.name
+end
+
+task test: 'test/spec.json'
+task prepare: :submodule
+task prepare: 'test/spec.json'
