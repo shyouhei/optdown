@@ -60,4 +60,5 @@ module Optdown
   require_relative 'optdown/blocklevel'
   require_relative 'optdown/parser'
   require_relative 'optdown/renderer'
+  require_relative 'optdown/plugins/html_renderer.rb'
 end
