@@ -36,6 +36,7 @@ group :development do
 end
 
 group :test do
+  gem 'benchmark-ips'
   gem 'rubocop'
   gem 'simplecov'
   gem 'stackprof'

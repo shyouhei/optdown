@@ -88,6 +88,36 @@ file 'test/spec.json' => 'submodules/CommonMark/spec.txt' do |f|
   mv 'submodules/CommonMark/spec.json', f.name
 end
 
+file 'benchmark/input.md' => 'submodules/progit/README.md' do |f|
+  require 'pathname'
+  dir  = Pathname.new __dir__
+  dest = dir + f.name
+  src  = dir + 'submodules/progit'
+  dest.open 'a' do |fp|
+    src                                                              \
+      . find                                                         \
+      . lazy                                                         \
+      . select {|i| i.fnmatch '*.{markdown,md}', File::FNM_EXTGLOB } \
+      . each   {|i| IO.copy_stream i.to_path, fp }
+  end
+end
+
+task :benchmark =>  'benchmark/input.md' do
+  # usage: rake benchmark -- prog prog prog ...
+  require 'benchmark/ips'
+  Benchmark.ips do |x|
+    progs = ARGV.drop_while {|i| i != '--' }
+    progs.shift
+    progs.each do |prog|
+      x.report prog do
+        sh "#{prog} benchmark/input.md > /dev/null", verbose: false
+      end
+    end
+  end
+end
+
 task test: 'test/spec.json'
 task prepare: :submodule
+task prepare: 'lib/optdown/html5entity.rb'
 task prepare: 'test/spec.json'
+task prepare: 'benchmark/input.md'
