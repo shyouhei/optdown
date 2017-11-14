@@ -51,6 +51,14 @@ end
 task c: :pry
 task console: :pry
 
+desc "run script under project"
+task :runner do
+  require_relative 'lib/optdown'
+  ARGV.shift while ARGV.first != 'runner'
+  ARGV.shift
+  eval ARGF.read, TOPLEVEL_BINDING, '(ARGF)'
+end
+
 file 'lib/optdown/html5entity.rb' => 'lib/optdown/html5entity.erb' do |t|
   require 'open-uri'
   require 'erb'
