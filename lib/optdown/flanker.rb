@@ -35,6 +35,11 @@ class Optdown::Flanker
 
     # @see http://spec.commonmark.org/0.27/#phase-2-inline-structure
     def parse ary, ctx
+      #
+      #  " ... foo ... **bar* baz*** ... "
+      #        ^       ^    ^
+      #        i       k    j
+      #
       n = ary.length
       i = 0
       while i < n do
@@ -43,6 +48,7 @@ class Optdown::Flanker
           k = find_opener ary, j, x
           if k then
             x.reduce ary, k, j, ctx
+            i = k + 1
           else
             i = j + 1
           end
@@ -55,6 +61,9 @@ class Optdown::Flanker
     def find_closer ary, i
       i.upto ary.length do |j|
         next unless t = ary[j]
+        next unless Optdown::Token === t
+        next unless t.yylex == :flanker
+        next unless t.yylval['flanker:right']
         [
           Optdown::Emphasis::Under,
           Optdown::Emphasis::Aster,
@@ -71,6 +80,9 @@ class Optdown::Flanker
       t = ary[i]
       i.downto 0 do |j|
         next unless tt = ary[j]
+        next unless Optdown::Token === tt
+        next unless tt.yylex == :flanker
+        next unless tt.yylval['flanker:left']
         next unless k.opener? tt
         next unless k.matching? tt, t
         return j
