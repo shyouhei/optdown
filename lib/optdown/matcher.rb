@@ -177,7 +177,8 @@ class Optdown::Matcher
   # @return [true]  end of string.
   # @return [false] not yet.
   def eos?
-    return match? %r/\G\z/
+    # This method is a super duper hot spot that is worth optimizing.
+    return @pos == @map.length
   end
 
   # Read until the end of string (or leftmost n characters, whichever reached
