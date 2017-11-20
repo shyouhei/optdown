@@ -45,12 +45,7 @@ class Optdown::Inline
   def self.tokenize str
     a = []
     until str.eos? do
-      b4, md = str.advance %r/
-        #{Optdown::EXPR} # ORDER MATTERS HERE
-        \g<escape+> | \g<entity> | \g<code> | \g<auto> | \g<auto:GH> |
-        \g<tag> | \g<br> | \g<link> | \g<flanker:and> | \g<flanker:or> |
-        \g<table:delim>
-      /xo
+      b4, md = str.advance %r/#{Optdown::EXPR} \g<inline:cutter> /xo
 
       if b4 and not b4.empty? then
         tok = Optdown::Token.new :cdata, b4

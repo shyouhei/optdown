@@ -166,6 +166,11 @@ Optdown::EXPR = /#{sprintf(<<~'end', entre: entre)}/x
              (?= \g<LINE:blank> | \g<hr> | \g<blockquote> | \g<li:cutter> |
                  \g<tag:cutter> | \g<pre:fenced> | \g<atx> | \z )          ){0}
 
+(?<blocklevel:fastpath> \g<indent>
+                        (?: \g<hr> | \g<link:def> | \g<blockquote> |
+                            \g<li> | \g<tag:block> | \g<pre:fenced> |
+                            \g<atx> | \g<LINE:blank>+ )                    ){0}
+
 # https://github.github.com/gfm/#tables-extension-
 (?<table:delim>    \g<WS:GH>* (?: \G | (?<! \\ ) ) \| \g<WS:GH>*           ){0}
 (?<table:td>       (?~ \g<table:delim> | \g<EOL> )                         ){0}
@@ -321,4 +326,8 @@ Optdown::EXPR = /#{sprintf(<<~'end', entre: entre)}/x
 (?<br>      (?: \g<br:hard> | \g<br:soft> ) \g<EOL> \g<SP>* (?! \z )       ){0}
 (?<br:hard> \g<SP>{2,} | \u005C                                            ){0}
 (?<br:soft> \g<SP>?                                                        ){0}
+
+(?<inline:cutter> \g<escape+> | \g<entity> | \g<code> | \g<auto> |
+                  \g<auto:GH> | \g<tag> | \g<br> | \g<link> |
+                  \g<flanker:and> | \g<flanker:or> | \g<table:delim>       ){0}
 end

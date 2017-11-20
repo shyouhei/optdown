@@ -59,18 +59,7 @@ class Optdown::Blocklevel
     re          = Optdown::EXPR # easy typing.
     until str.eos? do
       case str # ORDER MATTERS HERE
-      when %r/#{re} \G
-        \g<indent> (?:
-          \g<hr>               |
-          \g<link:def>         |
-          \g<blockquote>       |
-          \g<li>               |
-          \g<tag:block>        |
-          \g<pre:fenced>       |
-          \g<atx>              |
-          \g<LINE:blank>+
-        )
-      /xo then
+      when /#{re} \G \g<blocklevel:fastpath> /xo then
         # FAST PATH
         case
         when str['hr:chr']     then k = Optdown::ThematicBreak
