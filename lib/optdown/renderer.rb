@@ -40,12 +40,27 @@ class Optdown::Renderer
     return [ ary ].join
   end
 
-  # Visit a node.
-  #
-  # @param node [Object] AST node.
-  # @return     [Object] node's acceptance.
-  def visit node, **args
-    node.accept self, **args
+  # https://bugs.ruby-lang.org/issues/10856
+  if RUBY_VERSION < '2.5' then
+    # Visit a node.
+    #
+    # @param node [Object] AST node.
+    # @return     [Object] node's acceptance.
+    def visit node, **args
+      if args.empty? then
+        node.accept self
+      else
+        node.accept self, **args
+      end
+    end
+  else
+    # Visit a node.
+    #
+    # @param node [Object] AST node.
+    # @return     [Object] node's acceptance.
+    def visit node, **args
+      node.accept self, **args
+    end
   end
 
   # @!group Methods that are expected to be overridden by child classes
