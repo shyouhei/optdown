@@ -59,15 +59,30 @@ class Optdown::Blocklevel
     re          = Optdown::EXPR # easy typing.
     until str.eos? do
       case str # ORDER MATTERS HERE
-      when /#{re} \G \g<LINE:blank>+  /xo then k = nil
-      when /#{re} \G \g<hr>           /xo then k = Optdown::ThematicBreak
-      when /#{re} \G \g<link:def>     /xo then k = Optdown::LinkDef
-      when /#{re} \G \g<blockquote>   /xo then k = Optdown::Blockquote
-      when /#{re} \G \g<li>           /xo then k = Optdown::List
-      when /#{re} \G \g<tag:block>    /xo then k = Optdown::BlockHTML
-      when /#{re} \G \g<pre:fenced>   /xo then k = Optdown::FencedCodeBlock
+      when %r/#{re} \G
+        \g<indent> (?:
+          \g<hr>               |
+          \g<link:def>         |
+          \g<blockquote>       |
+          \g<li>               |
+          \g<tag:block>        |
+          \g<pre:fenced>       |
+          \g<atx>              |
+          \g<LINE:blank>+
+        )
+      /xo then
+        # FAST PATH
+        case
+        when str['hr:chr']     then k = Optdown::ThematicBreak
+        when str['link:def']   then k = Optdown::LinkDef
+        when str['blockquote'] then k = Optdown::Blockquote
+        when str['li']         then k = Optdown::List
+        when str['tag:block']  then k = Optdown::BlockHTML
+        when str['LINE:blank'] then k = nil # need check after tags
+        when str['pre:fenced'] then k = Optdown::FencedCodeBlock
+        when str['atx']        then k = Optdown::ATXHeading
+        end
       when /#{re} \G \g<pre:indented> /xo then k = Optdown::IndentedCodeBlock
-      when /#{re} \G \g<atx>          /xo then k = Optdown::ATXHeading
       when /#{re} \G (?= \g<sh>    )  /xo then k = Optdown::SetextHeading
       when /#{re} \G (?= \g<table> )  /xo then k = Optdown::Table
       else                                     k = Optdown::Paragraph

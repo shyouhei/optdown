@@ -48,7 +48,7 @@ class Optdown::Blockquote
           lines << str.gets
         end
       end
-      break unless str.match %r/#{Optdown::EXPR}\G\g<blockquote>/o
+      break unless str.match %r/#{Optdown::EXPR}\G\g<indent>\g<blockquote>/o
     end
     @children = Optdown::Blocklevel.from_lines lines, ctx
   end

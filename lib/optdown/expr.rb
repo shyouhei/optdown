@@ -66,11 +66,10 @@ Optdown::EXPR = /#{sprintf(<<~'end', entre: entre)}/x
 # http://spec.commonmark.org/0.28/#thematic-breaks
 (?<indent> \g<SP>{,3} (?! \g<SP> )                                         ){0}
 (?<hr:chr> \- | \_ | \*                                                    ){0}
-(?<hr>     \g<indent>
-           \g<hr:chr> \g<SP>* (?: \k<hr:chr> \g<SP>* ){2,} \g<EOL>         ){0}
+(?<hr>     \g<hr:chr> \g<SP>* (?: \k<hr:chr> \g<SP>* ){2,} \g<EOL>         ){0}
 
 # http://spec.commonmark.org/0.28/#atx-headings
-(?<atx>       \g<indent> \g<atx:open> \g<atx:body> \g<atx:close>           ){0}
+(?<atx>       \g<atx:open> \g<atx:body> \g<atx:close>                      ){0}
 (?<atx:open>  [#]{1,6} (?= \g<SP> | \g<EOL> )                              ){0}
 (?<atx:close> (?: (?<= \g<SP> ) [#]* \g<SP>* )? \g<EOL>                    ){0}
 (?<atx:body>  .*?                                                          ){0}
@@ -86,21 +85,18 @@ Optdown::EXPR = /#{sprintf(<<~'end', entre: entre)}/x
 (?<pre:indented>  \g<SP>{4}                                                ){0}
 
 # http://spec.commonmark.org/0.28/#fenced-code-blocks
-(?<pre:fenced>    \g<indent>
-                  \g<pre:fence> \g<SP>* \g<pre:info> \g<SP>* \g<EOL>       ){0}
+(?<pre:fenced>    \g<pre:fence> \g<SP>* \g<pre:info> \g<SP>* \g<EOL>       ){0}
 (?<pre:backticks> [`]{3,}                                                  ){0}
 (?<pre:tildes>    [~]{3,}                                                  ){0}
 (?<pre:fence>     \g<pre:backticks> | \g<pre:tildes>                       ){0}
 (?<pre:info>      [^`\u000A\u000D]*?                                       ){0}
 
 # http://spec.commonmark.org/0.28/#html-blocks
-(?<tag:block>   \g<indent> (?:
-                     \g<tag:start1> | \g<tag:start2> | \g<tag:start3> |
+(?<tag:block>        \g<tag:start1> | \g<tag:start2> | \g<tag:start3> |
                      \g<tag:start4> | \g<tag:start5> | \g<tag:start6> |
-                     \g<tag:start7> )                                      ){0}
-(?<tag:cutter>  \g<indent> (?:
-                     \g<tag:start1> | \g<tag:start2> | \g<tag:start3> |
-                     \g<tag:start4> | \g<tag:start5> | \g<tag:start6> )    ){0}
+                     \g<tag:start7>                                        ){0}
+(?<tag:cutter>       \g<tag:start1> | \g<tag:start2> | \g<tag:start3> |
+                     \g<tag:start4> | \g<tag:start5> | \g<tag:start6>      ){0}
 (?<tag:known>   (?i: address | article | aside | base | basefont |
                      blockquote | body | caption | center | col |
                      colgroup | dd | details | dialog | dir | div | dl |
@@ -118,7 +114,7 @@ Optdown::EXPR = /#{sprintf(<<~'end', entre: entre)}/x
 (?<tag:start4>  <! (?= [A-Z] )                                             ){0}
 (?<tag:start5>  <!\[CDATA\[                                                ){0}
 (?<tag:start6>  (?: < | </ )   \g<tag:known> (?: \g<tag:term> | /> )       ){0}
-(?<tag:start7>  \g<tag:complete> (?= \g<LINE:blank> )                      ){0}
+(?<tag:start7>  \g<tag:complete>                                           ){0}
 (?<tag:end1>    (?i: </script> | </pre> | </style> )                       ){0}
 (?<tag:end2>    -->                                                        ){0}
 (?<tag:end3>    \?>                                                        ){0}
@@ -133,15 +129,15 @@ Optdown::EXPR = /#{sprintf(<<~'end', entre: entre)}/x
                      > \g<LINE:blank>                                      ){0}
 
 # http://spec.commonmark.org/0.28/#link-reference-definitions
-(?<link:def> \g<indent> \g<link:label> [:] \g<WS*:EOL?>
+(?<link:def> \g<link:label> [:] \g<WS*:EOL?>
              \g<link:dest> \g<link:pair:title>? \g<WS*> \g<EOL>            ){0}
 
 # http://spec.commonmark.org/0.28/#block-quotes
-(?<blockquote> \g<indent> [>] \g<SP>?                                      ){0}
+(?<blockquote> [>] \g<SP>?                                                 ){0}
 
 # http://spec.commonmark.org/0.28/#list-items
 # https://github.github.com/gfm/#task-list-items-extension-
-(?<li>        \g<indent> \g<li:marker> \g<li:train>                        ){0}
+(?<li>        \g<li:marker> \g<li:train>                                   ){0}
 (?<li:bullet> [-+*]                                                        ){0}
 (?<li:num>    \d{1,9}                                                      ){0}
 (?<li:mark>   [\)\.]                                                       ){0}
@@ -151,8 +147,8 @@ Optdown::EXPR = /#{sprintf(<<~'end', entre: entre)}/x
 (?<li:eol>    (?= \g<WS>* \g<EOL> )                                        ){0}
 (?<li:task>   \g<SP>{1,4} \[ (?: \g<SP> | x ) \] (?= \g<SP> )              ){0}
 (?<li:train>  \g<li:pre> | \g<li:eol> | \g<li:task> | \g<li:normal>        ){0}
-(?<li:cutter> \g<indent> \g<li:bullet>      \g<SP>+ (?! \g<WS> ) . |
-              \g<indent> 0{,8}1 \g<li:mark> \g<SP>+ (?! \g<WS> ) .         ){0}
+(?<li:cutter> \g<li:bullet>      \g<SP>+ (?! \g<WS> ) . |
+              0{,8}1 \g<li:mark> \g<SP>+ (?! \g<WS> ) .                    ){0}
 
 # http://spec.commonmark.org/0.28/#lazy-continuation-line
 #
@@ -166,7 +162,8 @@ Optdown::EXPR = /#{sprintf(<<~'end', entre: entre)}/x
 #
 # So in short  the level 1 setext  underline is the only  setext underline that
 # can form a lazy continuation paragraph.
-(?<p:cutter> (?= \g<LINE:blank> | \g<hr> | \g<blockquote> | \g<li:cutter> |
+(?<p:cutter> \g<indent>
+             (?= \g<LINE:blank> | \g<hr> | \g<blockquote> | \g<li:cutter> |
                  \g<tag:cutter> | \g<pre:fenced> | \g<atx> | \z )          ){0}
 
 # https://github.github.com/gfm/#tables-extension-
@@ -293,8 +290,8 @@ Optdown::EXPR = /#{sprintf(<<~'end', entre: entre)}/x
 (?<auto:GH:TLD>    [a-zA-Z0-9-]+ (?<! - | _ )                              ){0}
 (?<auto:GH:path>   [^\u0020\u0009\u000A\u000B\u000C\u000D\u003C]*?
                    # see also inline.rb for paren validations
-		   (?= (?: \g<auto:GH:punct> | \g<entity:named> )?
-		       (?: \g<WS> | \g<EOL> | < ) )                        ){0}
+                   (?= (?: \g<auto:GH:punct> | \g<entity:named> )?
+                       (?: \g<WS> | \g<EOL> | < ) )                        ){0}
 (?<auto:GH:punct>  [\?\!\.\,\:\*\_\~]                                      ){0}
 (?<auto:GH:url>    \g<auto:GH:scheme> \g<auto:GH:domain> \g<auto:GH:path>  ){0}
 (?<auto:GH:scheme> http:// | https:// | ftp://                             ){0}

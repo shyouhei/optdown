@@ -42,14 +42,16 @@ class Optdown::ListItem
 
   def calc_width md
     str = md['li2'] rescue md['li']
-    if md['li:normal']  then return str.length
-    elsif md['li:pre']  then return str.length
-    elsif md['li:eol']  then return str.length + 1
+    pad = (md['indent'] || '').length
+    ret = pad + str.length
+    if md['li:normal']  then return ret
+    elsif md['li:pre']  then return ret
+    elsif md['li:eol']  then return ret + 1
     elsif md['li:task'] then
       # `-    [ ] foo`
       #  ^^^^^^^^ : str
       #  ^^^^^    : what we need this case
-      return str.length - 3
+      return ret - 3
     end
   end
 
