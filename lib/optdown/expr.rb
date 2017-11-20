@@ -318,7 +318,7 @@ Optdown::EXPR = /#{sprintf(<<~'end', entre: entre)}/x
                    \g<tag:xmlproc> | \g<tag:doctype> | \g<tag:CDATA>       ){0}
 
 # http://spec.commonmark.org/0.28/#hard-line-breaks
-(?<br>             (?: \g<br:hard> | \g<br:soft> ) \g<EOL> \g<SP>* (?! \z )){0}
-(?<br:hard>        \g<SP>{2,} | \u005C                                     ){0}
-(?<br:soft>        \g<SP>?                                                 ){0}
+(?<br>      (?: \g<br:hard> | \g<br:soft> ) \g<EOL> \g<SP>* (?! \z )       ){0}
+(?<br:hard> \g<SP>{2,} | \u005C                                            ){0}
+(?<br:soft> \g<SP>?                                                        ){0}
 end
